@@ -42,4 +42,33 @@ describe('handleAcknowledge', () => {
             })
 
     }).timeout(7000)
+
+    it('should start a http server', done => {
+        var server = process.exec('/Users/sam/.nvm/versions/node/v8.9.4/bin/node ./src/index.js',
+            (error, stdout, stderr) => {
+                // console.log('stdout: ', stdout);
+                // console.log('stderr: ', stderr);
+                // if (error !== null) {
+                //     console.log('exec error: ', error);
+                // }
+            })
+
+        sleep(3)
+        request
+            .post('http://localhost:1337')
+            .send("")
+            .timeout({
+                response: 5000,  // Wait 5 seconds for the server to start sending,
+                deadline: 60000, // but allow 1 minute for the file to finish loading.
+            })
+            .set('Content-Type', 'application/pdf')
+            .set('Access-Control-Allow-Origin', '*')
+            .end((err, res) => {
+                expect(res.header['content-type']).to.equal('application/pdf')
+                expect(res.header['access-control-allow-origin']).to.equal('*')
+                done()
+                server.kill('SIGTERM')
+            })
+
+    }).timeout(7000)
 })
